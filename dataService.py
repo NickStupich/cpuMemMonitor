@@ -4,14 +4,15 @@ import time
 from datetime import datetime, timedelta
 
 def datetimeToJs(dt):
-	return dt.strftime('%m-%d %I:%M%p')	#2008-06-30 8:00AM
-	#return breakdownInfo.datetimetoTimestamp(dt)
-
+	return dt.strftime('%m-%d %I:%M%p')
+	
 class DataService():
 	def __init__(self):
 		self.dbm = db.dbManager()
 
 	def getUserBreakdownDataString(self):
+		content = open('html/userBreakdown.html').read()
+		
 		bdi = self.dbm.getLatest(n=1)[0]
 		totalMem = 0.0
 		dataMem = '['
@@ -29,11 +30,14 @@ class DataService():
 		dataCpu += "['free', %f]" % (100 * breakdownInfo.getNumCpus() - totalCpu)
 		dataCpu += ']'
 		
-		return {	'dataMem' : dataMem, 
+		contentDict = {	'dataMem' : dataMem, 
 					'dataCpu' : dataCpu, 
 					'time' : str(bdi.timestamp), 
 					'navHeader' : open('html/navHeader.html').read(),
 				}
+				
+		result = content % contentDict
+		return result
 		
 	def dictListToString(self, dataList, timestamps, uniqueKeys = None, doTotal = True):
 		if uniqueKeys is None:
@@ -81,11 +85,22 @@ class DataService():
 		
 		labels = '[' + ','.join(['"' + user + '"' for user in uniqueUsers]) + ']'
 		
-		return {	'labels' : labels, 
-					'dataMem' : dataMem, 
-					'dataCpu' : dataCpu, 
-					'blankDictLabelsMinusOne' : '{},' * (len(uniqueUsers)-1), 
-					'navHeader' : open('html/navHeader.html').read(),
-					'minTime' : datetimeToJs(bdis[-1].timestamp),
-					'maxTime' : datetimeToJs(bdis[0].timestamp)
-				}
+		graphsContent = open('html/timeGraphs.html').read()
+		graphsDict = {	'labels' : labels, 
+						'dataMem' : dataMem, 
+						'dataCpu' : dataCpu, 
+						'blankDictLabelsMinusOne' : '{},' * (len(uniqueUsers)-1), 					
+						'minTime' : datetimeToJs(bdis[-1].timestamp),
+						'maxTime' : datetimeToJs(bdis[0].timestamp)
+					}
+		graphsResult = graphsContent % graphsDict
+				
+		contentDict = {	'navHeader' : open('html/navHeader.html').read(),
+						'timeGraphs' : graphsResult
+					}
+					
+		content = open('html/totalHistory.html').read()
+		print content
+		result = content % contentDict
+		
+		return result

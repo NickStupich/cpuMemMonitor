@@ -23,21 +23,16 @@ class MyHandler(BaseHTTPRequestHandler):
 	
 			topPage = baseUrl.strip('.html').strip('/').split('/')[0]
 			if topPage == 'userBreakdown':
-				content = open('html/userBreakdown.html').read()
-				dataStr = ds.getUserBreakdownDataString()
-				content = content % dataStr
+				content = ds.getUserBreakdownDataString()
 				self.wfile.write(content)
-			elif topPage == 'totalHistory':
-				content = open('html/totalHistory.html').read()
-				
+			elif topPage == 'totalHistory':				
 				hours = 1
 				if queryParams:
 					params = parse_qs(queryParams)
 					if params.has_key('hours'):
 						hours = float(params['hours'][0])
 				
-				dataStr = ds.getTotalHistoryDataString(hours = hours)
-				content = content % dataStr
+				content = ds.getTotalHistoryDataString(hours = hours)
 				self.wfile.write(content)
 				
 		if self.path.endswith('.js'):

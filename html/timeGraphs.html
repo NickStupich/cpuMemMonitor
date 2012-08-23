@@ -1,0 +1,54 @@
+<div id="memWrapper">
+	<div id="chartMem" style="height:400px;width:800px; "></div>
+</div>
+
+<div id="cpuWrapper">
+	<div id="chartCpu" style="height:400px;width:800px; "></div>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+	var dataMem = %(dataMem)s;
+	var dataCpu = %(dataCpu)s;
+	var labels = %(labels)s;
+	var minTime = '%(minTime)s';
+	var maxTime = '%(maxTime)s';
+
+	var plotMem = $.jqplot ('chartMem', 
+						dataMem,
+						{
+							title: 'Memory breakdown',
+							legend: { show:true, location: 'e' ,labels: labels},
+							axes: {	yaxis: {min: 0, max:100, numberTicks:11},
+									xaxis: {renderer: $.jqplot.DateAxisRenderer,
+											numberTicks: 7,
+											tickOptions:{formatString:'%%H:%%M:%%S'},
+											min: minTime,
+											max: maxTime,
+											}
+									},
+							series: [{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'},
+									%(blankDictLabelsMinusOne)s ],
+							
+						}
+						);
+						
+	var plotCpu = $.jqplot ('chartCpu', 
+						dataCpu,
+						{
+							title: 'Cpu breakdown',
+							legend: { show:true, location: 'e' ,labels: labels},
+							axes: {	yaxis: {min: 0.0, max:100.0, numberTicks:11},
+									xaxis: {renderer: $.jqplot.DateAxisRenderer,
+											numberTicks: 7,
+											tickOptions:{formatString:'%%H:%%M:%%S'},
+											min: minTime,
+											max: maxTime,
+											}
+									},
+							series: [{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'},
+									%(blankDictLabelsMinusOne)s ],
+						}
+						);
+});
