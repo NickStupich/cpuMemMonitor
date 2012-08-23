@@ -35,55 +35,50 @@ class DataService():
 					'navHeader' : open('html/navHeader.html').read(),
 				}
 		
+	def dictListToString(self, dataList, timestamps, uniqueKeys = None, doTotal = True):
+		if uniqueKeys is None:
+			uniqueKeys = []
+			for d in dataList:
+				for key in d:
+					if not key in uniqueKeys:
+						uniqueKeys.append(key)
+						
+		result = '['
+		
+		if doTotal:
+			subResult = '['
+			for dataPt, timestamp in zip(dataList, timestamps):
+				subResult += "['%s', %f]," % (datetimeToJs(timestamp), sum(dataPt.values()))
+			subResult += ']'
+			result += subResult + ',\n'
+			
+		for key in uniqueKeys:
+			
+			subResult = '['
+			for dataPt, timestamp in zip(dataList, timestamps):		
+				subResult += "['%s', %f]," % (datetimeToJs(timestamp), dataPt[key] if dataPt.has_key(key) else 0.0)
+			subResult += ']'
+			
+			result += subResult + ',\n'
+		result += ']'
+		
+		if doTotal:
+			uniqueKeys.insert(0, 'Total (Shadow)')
+		
+		return result, uniqueKeys
+		
 	def getTotalHistoryDataString(self, minTimestamp = None, hours = 1):
 		if minTimestamp is None:
 			minTimestamp = time.mktime((datetime.now() - timedelta(hours=hours)).timetuple())
 			
 		bdis = self.dbm.getSince(minTimestamp)
-		dataMem = '['
 		
-		uniqueUsers = []
-		for bdi in bdis:
-			for user in bdi.userProcessDict:
-				if not user in uniqueUsers:
-					uniqueUsers.append(user)
+		timestamps = map(lambda x: x.timestamp, bdis)
+		userMemTotals = map(lambda x: x.userMemTotal, bdis)
+		userCpuTotals = map(lambda x: x.userCpuTotal, bdis)
+		dataMem, uniqueUsers = self.dictListToString(userMemTotals, timestamps)
+		dataCpu, uniqueUsers = self.dictListToString(userCpuTotals, timestamps)
 		
-		for user in uniqueUsers:
-			userMem = '['
-			for bdi in bdis:
-				userMem += "['%s', %f]," % (datetimeToJs(bdi.timestamp),
-											bdi.userMemTotal[user] if bdi.userMemTotal.has_key(user) else 0.0)
-			userMem += ']'
-			
-			dataMem += userMem + ',\n'
-			
-		userMem = '['
-		for bdi in bdis:
-			userMem += "['%s', %f]," % (datetimeToJs(bdi.timestamp), bdi.totalMem)
-		userMem += ']'
-		dataMem += userMem + ',\n'
-			
-		dataMem += ']'
-		
-		dataCpu = '['
-		for user in uniqueUsers:
-			userCpu = '['
-			for bdi in bdis:
-				userCpu += "['%s', %f]," % (datetimeToJs(bdi.timestamp),
-											bdi.userCpuTotal[user] if bdi.userCpuTotal.has_key(user) else 0.0)
-			userCpu += ']'
-			
-			dataCpu += userCpu + ',\n'
-			
-		userCpu = '['
-		for bdi in bdis:
-			userCpu += "['%s', %f]," % (datetimeToJs(bdi.timestamp), bdi.totalCpu)
-		userCpu += ']'
-		dataCpu += userCpu + ',\n'
-			
-		dataCpu += ']'
-			
-		uniqueUsers.append('Total (shadow)')
 		labels = '[' + ','.join(['"' + user + '"' for user in uniqueUsers]) + ']'
 		
 		return {	'labels' : labels, 

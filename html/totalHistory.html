@@ -41,8 +41,8 @@ $(document).ready(function(){
 											max: maxTime,
 											}
 									},
-							series:[%(blankDictLabelsMinusOne)s
-									{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'}],
+							series: [{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'},
+									%(blankDictLabelsMinusOne)s ],
 							
 						}
 						);
@@ -60,8 +60,8 @@ $(document).ready(function(){
 											max: maxTime,
 											}
 									},
-							series: [%(blankDictLabelsMinusOne)s
-									{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'}],
+							series: [{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'},
+									%(blankDictLabelsMinusOne)s ],
 						}
 						);
 });
