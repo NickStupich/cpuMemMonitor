@@ -17,9 +17,6 @@ class MyHandler(BaseHTTPRequestHandler):
 		baseUrl = re.sub('\?.*', '', self.path)
 	
 		if baseUrl.endswith('.html'):
-			self.send_response(200)
-			self.send_header('Content-type',	'text/html')
-			self.end_headers()
 	
 			topPage = baseUrl.strip('.html').strip('/').split('/')[0]
 			if topPage == 'userBreakdown':
@@ -34,6 +31,17 @@ class MyHandler(BaseHTTPRequestHandler):
 				
 				content = ds.getTotalHistoryDataString(hours = hours)
 				self.wfile.write(content)
+			elif topPage == 'userHistory':
+				if not queryParams or not parse_qs(queryParams).has_key('user'):
+					self.redirectTo('/totalHistory.html')
+					return
+				else:
+					user = parse_qs(queryParams)['user']
+					content = ds.getUserHistoryDataString(user)
+					if content is None:
+						self.redirectTo('/totalHistory.html')
+						return
+					
 				
 		if self.path.endswith('.js'):
 			self.send_response(200)
@@ -51,8 +59,17 @@ class MyHandler(BaseHTTPRequestHandler):
 			content = open('css/' + self.path).read()
 			self.wfile.write(content)
 			
+		if baseUrl.endswith('.html'):
+			self.send_response(200)
+			self.send_header('Content-type',	'text/html')
+			self.end_headers()
+			
 		return
      
+	def redirectTo(self, url, timeout = 0):
+		self.wfile.write("""<html><head>
+			<meta HTTP-EQUIV="REFRESH"
+			content="%i; url=%s"/></head>""" % (timeout, url))
 
 	def do_POST(self):
 		pass

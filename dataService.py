@@ -104,3 +104,6 @@ class DataService():
 		result = content % contentDict
 		
 		return result
+		
+	def getUserHistoryDataString(user):
+		return None
