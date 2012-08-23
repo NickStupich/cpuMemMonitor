@@ -3,6 +3,10 @@ import db
 import time
 from datetime import datetime, timedelta
 
+def datetimeToJs(dt):
+	return dt.strftime('%m-%d %I:%M%p')	#2008-06-30 8:00AM
+	#return breakdownInfo.datetimetoTimestamp(dt)
+
 class DataService():
 	def __init__(self):
 		self.dbm = db.dbManager()
@@ -47,7 +51,7 @@ class DataService():
 		for user in uniqueUsers:
 			userMem = '['
 			for bdi in bdis:
-				userMem += '[%d, %f],' % (breakdownInfo.datetimetoTimestamp(bdi.timestamp),
+				userMem += "['%s', %f]," % (datetimeToJs(bdi.timestamp),
 											bdi.userMemTotal[user] if bdi.userMemTotal.has_key(user) else 0.0)
 			userMem += ']'
 			
@@ -55,7 +59,7 @@ class DataService():
 			
 		userMem = '['
 		for bdi in bdis:
-			userMem += '[%d, %f],' % (breakdownInfo.datetimetoTimestamp(bdi.timestamp), bdi.totalMem)
+			userMem += "['%s', %f]," % (datetimeToJs(bdi.timestamp), bdi.totalMem)
 		userMem += ']'
 		dataMem += userMem + ',\n'
 			
@@ -65,7 +69,7 @@ class DataService():
 		for user in uniqueUsers:
 			userCpu = '['
 			for bdi in bdis:
-				userCpu += '[%d, %f],' % (breakdownInfo.datetimetoTimestamp(bdi.timestamp),
+				userCpu += "['%s', %f]," % (datetimeToJs(bdi.timestamp),
 											bdi.userCpuTotal[user] if bdi.userCpuTotal.has_key(user) else 0.0)
 			userCpu += ']'
 			
@@ -73,7 +77,7 @@ class DataService():
 			
 		userCpu = '['
 		for bdi in bdis:
-			userCpu += '[%d, %f],' % (breakdownInfo.datetimetoTimestamp(bdi.timestamp), bdi.totalCpu)
+			userCpu += "['%s', %f]," % (datetimeToJs(bdi.timestamp), bdi.totalCpu)
 		userCpu += ']'
 		dataCpu += userCpu + ',\n'
 			
@@ -87,4 +91,6 @@ class DataService():
 					'dataCpu' : dataCpu, 
 					'blankDictLabelsMinusOne' : '{},' * (len(uniqueUsers)-1), 
 					'navHeader' : open('html/navHeader.html').read(),
+					'minTime' : datetimeToJs(bdis[-1].timestamp),
+					'maxTime' : datetimeToJs(bdis[0].timestamp)
 				}
