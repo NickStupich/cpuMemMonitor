@@ -6,6 +6,7 @@ import dataService
 from urlparse import parse_qs
 import re
 import sys
+import platform
 
 ds = dataService.DataService()
 
@@ -62,8 +63,8 @@ class MyHandler(BaseHTTPRequestHandler):
 		pass
 
 def main():
-	if not '64' in sys.version:
-		print 'This MUST be run in 64 bit python - otherwise applications with >2GB memory dont work properly'
+	if '64' in platform.machine() and (not '64' in sys.version):
+		print 'This MUST be run in 64 bit python for a 64 bit machine - otherwise applications with >2GB memory dont work properly'
 		exit(1)
 		
 	try:
