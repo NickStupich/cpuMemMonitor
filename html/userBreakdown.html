@@ -1,0 +1,58 @@
+<html>
+<head>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="jquery.jqplot.js"></script>
+<script type="text/javascript" src="jqplot/jqplot.pieRenderer.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery.jqplot.min.css" />
+</head>
+
+<body>
+%(navHeader)s
+<h1 id="systemConditionLabel">System conditions</h1>
+<div id="memWrapper">
+	<h2>Memory breakdown</h2>
+	<div id="chartMem" style="height:400px;width:600px; "></div>
+</div>
+
+<div id="cpuWrapper">
+	<h2>Cpu breakdown</h2>
+	<div id="chartCpu" style="height:400px;width:600px; "></div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+  var dataMem = %(dataMem)s
+  var plot1 = jQuery.jqplot ('chartMem', [dataMem], 
+    { 
+      seriesDefaults: {
+        renderer: jQuery.jqplot.PieRenderer, 
+        rendererOptions: {
+          showDataLabels: true
+        }
+      }, 
+      legend: { show:true, location: 'e' }
+    }
+  );
+  
+  var dataCpu = %(dataCpu)s
+  var plot2 = jQuery.jqplot ('chartCpu', [dataCpu], 
+    { 
+      seriesDefaults: {
+        renderer: jQuery.jqplot.PieRenderer, 
+        rendererOptions: {
+          showDataLabels: true
+        }
+      }, 
+      legend: { show:true, location: 'e' }
+    }
+  );
+  
+  var timeString = "%(time)s";
+  document.getElementById('systemConditionLabel').innerText = 'System conditions at ' + timeString
+  
+});
+</script>
+
+</body>
+</html>
