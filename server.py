@@ -14,33 +14,34 @@ class MyHandler(BaseHTTPRequestHandler):
 		
 	def do_GET(self):
 		queryParams = re.sub('.*\?', '', self.path)
+		paramsDict = parse_qs(queryParams) if queryParams else {}
 		baseUrl = re.sub('\?.*', '', self.path)
+		
+		pageContent = None
 	
 		if baseUrl.endswith('.html'):
 	
 			topPage = baseUrl.strip('.html').strip('/').split('/')[0]
 			if topPage == 'userBreakdown':
 				content = ds.getUserBreakdownDataString()
-				self.wfile.write(content)
+				pageContent = content
 			elif topPage == 'totalHistory':				
 				hours = 1
-				if queryParams:
-					params = parse_qs(queryParams)
-					if params.has_key('hours'):
-						hours = float(params['hours'][0])
+				paramsDict = parse_qs(queryParams)
+				if paramsDict.has_key('hours'):
+					hours = float(paramsDict['hours'][0])
 				
 				content = ds.getTotalHistoryDataString(hours = hours)
-				self.wfile.write(content)
+				pageContent = content
+				
 			elif topPage == 'userHistory':
-				if not queryParams or not parse_qs(queryParams).has_key('user'):
-					self.redirectTo('/totalHistory.html')
-					return
-				else:
-					user = parse_qs(queryParams)['user']
-					content = ds.getUserHistoryDataString(user)
-					if content is None:
-						self.redirectTo('/totalHistory.html')
-						return
+				user = paramsDict.get('user')
+				user = user[0] if user else None
+				hours = 1
+				if paramsDict.has_key('hours'):
+					hours = float(paramsDict['hours'][0])
+					
+				pageContent = ds.getUserHistoryDataString(user, hours)
 					
 				
 		if self.path.endswith('.js'):
@@ -63,6 +64,8 @@ class MyHandler(BaseHTTPRequestHandler):
 			self.send_response(200)
 			self.send_header('Content-type',	'text/html')
 			self.end_headers()
+			
+			self.wfile.write(pageContent)
 			
 		return
      

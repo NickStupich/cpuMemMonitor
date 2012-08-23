@@ -2,13 +2,18 @@ import psutil
 from datetime import datetime
 import time
 
-cpuScanTime = 0.1
+cpuScanTime = 0.5
 
 def timestampToDatetime(timestamp):
 	return datetime.fromtimestamp(timestamp)
 	
 def datetimetoTimestamp(dt):
 	return time.mktime(dt.timetuple())
+	
+def cleanUsername(username):
+	if username.lower().__contains__("system"): username = 'SYSTEM'
+	username = username.split('\\')[-1]
+	return username
 
 class UserBreakdownInfo():
 	def __init__(self, data = None):
@@ -28,8 +33,7 @@ class UserBreakdownInfo():
 		
 		for p in psutil.get_process_list():
 			try:
-				username = p.username
-				if username.lower().__contains__("system"): username = 'SYSTEM'
+				username = cleanUsername(p.username)
 			except Exception, e:
 				username = 'SYSTEM'
 			try:
