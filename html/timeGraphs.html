@@ -44,7 +44,7 @@ $(document).ready(function(){
 						{
 							title: 'Cpu breakdown',
 							legend: { show:true, location: 'e' ,labels: labels},
-							axes: {	yaxis: {min: 0.0, max:100.0, numberTicks:11},
+							axes: {	yaxis: {min: 0.0, max:%(maxCpu)s, numberTicks:11},
 									xaxis: {renderer: $.jqplot.DateAxisRenderer,
 											numberTicks: 7,
 											tickOptions:{formatString:'%%H:%%M:%%S'},

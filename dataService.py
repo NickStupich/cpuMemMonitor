@@ -111,7 +111,8 @@ class DataService():
 						'dataCpu' : json.dumps(dataCpu, indent = 3), 
 						'blankDictLabelsMinusOne' : '{},' * (len(uniqueKeys)-1), 					
 						'minTime' : datetimeToJs(timestamps[-1]),
-						'maxTime' : datetimeToJs(timestamps[0])
+						'maxTime' : datetimeToJs(timestamps[0]),
+						'maxCpu' : breakdownInfo.getNumCpus() * 100,
 					}
 		graphsResult = graphsContent % graphsDict
 				
