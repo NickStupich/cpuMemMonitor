@@ -30,6 +30,11 @@ $(document).ready(function(){
 									},
 							series: [{show:true, showMarker: false, fill: true, fillAlpha: 0.1, fillColor: '#000'},
 									%(blankDictLabelsMinusOne)s ],
+							highlighter: {
+								tooltipAxes: 'y',
+								yvalues: 3,
+								showTooltip: true,
+							}
 							
 						}
 						);

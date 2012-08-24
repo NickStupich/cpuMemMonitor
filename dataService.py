@@ -127,8 +127,23 @@ class DataService():
 		timestamps = map(lambda x: x.timestamp, bdis)
 		
 		userInfo = map(lambda x: x.userProcessDict[user], bdis)
-		userMemTotals = map(lambda xi: dict([(y[1], y[2]) for y in xi]), userInfo)
-		userCpuTotals = map(lambda xi: dict([(y[1], y[3]) for y in xi]), userInfo)
 		
+		userMemTotals = []
+		userCpuTotals = []
+		for xi in userInfo:
+			dMem = {}
+			dCpu = {}
+			for y in xi:
+				if not dMem.has_key(y[1]):
+					dMem[y[1]] = 0.0
+					dCpu[y[1]] = 0.0
+					
+				dMem[y[1]] += y[2]
+				dCpu[y[1]] += y[3]
+				
+			userMemTotals.append(dMem)
+			userCpuTotals.append(dCpu)
 		
 		return self.getTimeGraph(userMemTotals, userCpuTotals, timestamps)
+		
+		

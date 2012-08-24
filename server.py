@@ -83,15 +83,15 @@ def main():
 		exit(1)
 		
 	try:
-		ct = cronThread.CronThread()
-		ct.start()
+		#ct = cronThread.CronThread()
+		#ct.start()
 		server = HTTPServer(('', 80), MyHandler)
 		print 'started httpserver...'
 		server.serve_forever()
 	except KeyboardInterrupt:
 		print '^C received, shutting down server, this may take many seconds'
 		server.socket.close()
-		ct.stop()
+		#ct.stop()
 
 if __name__ == '__main__':
     main()
