@@ -4,7 +4,7 @@ from threading import Thread
 from datetime import datetime
 import time
 
-delay = 10 #seconds
+delay = 60 #seconds
 
 class CronThread(Thread):
 	def __init__(self):

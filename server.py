@@ -20,7 +20,9 @@ class MyHandler(BaseHTTPRequestHandler):
 		pageContent = None
 	
 		if baseUrl.endswith('.html'):
-	
+			numLines = 5
+			if paramsDict.has_key('numLines'):
+				numLines = int(paramsDict['numLines'][0])
 			topPage = baseUrl.strip('.html').strip('/').split('/')[0]
 			if topPage == 'userBreakdown':
 				content = ds.getUserBreakdownDataString()
@@ -31,7 +33,7 @@ class MyHandler(BaseHTTPRequestHandler):
 				if paramsDict.has_key('hours'):
 					hours = float(paramsDict['hours'][0])
 				
-				content = ds.getTotalHistoryDataString(hours = hours)
+				content = ds.getTotalHistoryDataString(hours, numLines)
 				pageContent = content
 				
 			elif topPage == 'userHistory':
@@ -41,7 +43,7 @@ class MyHandler(BaseHTTPRequestHandler):
 				if paramsDict.has_key('hours'):
 					hours = float(paramsDict['hours'][0])
 					
-				pageContent = ds.getUserHistoryDataString(user, hours)
+				pageContent = ds.getUserHistoryDataString(user, hours, numLines)
 					
 				
 		if self.path.endswith('.js'):
@@ -83,15 +85,15 @@ def main():
 		exit(1)
 		
 	try:
-		#ct = cronThread.CronThread()
-		#ct.start()
+		ct = cronThread.CronThread()
+		ct.start()
 		server = HTTPServer(('', 80), MyHandler)
 		print 'started httpserver...'
 		server.serve_forever()
 	except KeyboardInterrupt:
 		print '^C received, shutting down server, this may take many seconds'
 		server.socket.close()
-		#ct.stop()
+		ct.stop()
 
 if __name__ == '__main__':
     main()

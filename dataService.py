@@ -50,7 +50,7 @@ class DataService():
 				if not key in uniqueKeys:
 					uniqueKeys.append(key)
 						
-		if len(uniqueKeys) > numKeys:
+		if len(uniqueKeys) > numKeys and numKeys > 0:
 			keyTotals = dict([(key, 0.0) for key in uniqueKeys])
 			for d in data:
 				for key in d:
@@ -60,6 +60,14 @@ class DataService():
 			uniqueKeys = map(lambda x: x[0], sortedKeys[:numKeys]) + [OTHER_KEY]
 			
 		return [TOTAL_KEY] + uniqueKeys
+		
+	def getUserLinksContent(self, bdis):
+		uniqueUsers = self.getUniqueKeys(map(lambda x: x.userMemTotal, bdis))[1:]	#ignore the total key
+		userLink = '<div><a href="/userHistory.html?user=%(username)s">%(username)s</a></div>'
+		resultList = [userLink % {'username' : username} for username in uniqueUsers]
+		header = '<div><h2>Individual users breakdown</h2></div>'
+		result = '\n'.join([header] + resultList)
+		return result
 		
 	def getDataList(self, data, timestamps, uniqueKeys):
 		result = []
@@ -76,9 +84,8 @@ class DataService():
 			result.append(subResult)
 		return result
 		
-	def getTotalHistoryDataString(self, minTimestamp = None, hours = 1):
-		if minTimestamp is None:
-			minTimestamp = time.mktime((datetime.now() - timedelta(hours=hours)).timetuple())
+	def getTotalHistoryDataString(self, hours = 1, numUsers = 5):
+		minTimestamp = time.mktime((datetime.now() - timedelta(hours=hours)).timetuple())
 			
 		bdis = self.dbm.getSince(minTimestamp)
 		
@@ -88,11 +95,12 @@ class DataService():
 		timestamps = map(lambda x: x.timestamp, bdis)
 		userMemTotals = map(lambda x: x.userMemTotal, bdis)
 		userCpuTotals = map(lambda x: x.userCpuTotal, bdis)
-		return self.getTimeGraph(userMemTotals, userCpuTotals, timestamps)
+		userLinks = self.getUserLinksContent(bdis)
+		return self.getTimeGraph(userMemTotals, userCpuTotals, timestamps, userLinks, numUsers)
 		
-	def getTimeGraph(self, memTotals, cpuTotals, timestamps):
+	def getTimeGraph(self, memTotals, cpuTotals, timestamps, userLinks, numKeys):
 		
-		uniqueKeys = self.getUniqueKeys(memTotals)	#unique keys will be sorted by memory
+		uniqueKeys = self.getUniqueKeys(memTotals, numKeys)	#unique keys will be sorted by memory
 		
 		dataMem = self.getDataList(memTotals, timestamps, uniqueKeys)
 		dataCpu = self.getDataList(cpuTotals, timestamps, uniqueKeys)
@@ -108,7 +116,8 @@ class DataService():
 		graphsResult = graphsContent % graphsDict
 				
 		contentDict = {	'navHeader' : open('html/navHeader.html').read(),
-						'timeGraphs' : graphsResult
+						'timeGraphs' : graphsResult,
+						'usersLink' : userLinks,
 					}
 					
 		content = open('html/totalHistory.html').read()
@@ -117,13 +126,13 @@ class DataService():
 		return result
 		
 	def getUserHistoryDataString(self, user, hours = 1, processesToShow = 5):
-		if user is None:
-			return """<html><body>Specify a user - Ex: userHistory.html?user=someUser</body></html>"""
-	
 		minTimestamp = time.mktime((datetime.now() - timedelta(hours=hours)).timetuple())
 			
 		bdis = self.dbm.getSince(minTimestamp)
-		
+		if user is None:
+			return self.getUserLinksContent(bdis)
+
+		userLinks = self.getUserLinksContent(bdis)
 		timestamps = map(lambda x: x.timestamp, bdis)
 		
 		userInfo = map(lambda x: x.userProcessDict[user], bdis)
@@ -144,6 +153,6 @@ class DataService():
 			userMemTotals.append(dMem)
 			userCpuTotals.append(dCpu)
 		
-		return self.getTimeGraph(userMemTotals, userCpuTotals, timestamps)
+		return self.getTimeGraph(userMemTotals, userCpuTotals, timestamps, userLinks, processesToShow)
 		
 		
